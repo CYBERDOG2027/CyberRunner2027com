@@ -1,0 +1,1578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CYBER RUNNER 2027</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-pink: #ff2a6d;
+            --neon-purple: #d300c5;
+            --neon-blue: #05d9e8;
+            --neon-teal: #00f2ff;
+            --dark-bg: #0d0221;
+            --darker-bg: #05010e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Press Start 2P', cursive;
+            background-color: var(--dark-bg);
+            color: var(--neon-teal);
+            overflow-x: hidden;
+            line-height: 1.6;
+            background-image: 
+                linear-gradient(45deg, var(--darker-bg) 25%, transparent 25%),
+                linear-gradient(-45deg, var(--darker-bg) 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, var(--darker-bg) 75%),
+                linear-gradient(-45deg, transparent 75%, var(--darker-bg) 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+        }
+
+        /* Language toggle */
+        .language-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
+        }
+
+        .lang-btn {
+            background: transparent;
+            border: none;
+            color: var(--neon-teal);
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.7rem;
+            cursor: pointer;
+            padding: 5px 10px;
+            opacity: 0.7;
+            transition: all 0.3s;
+        }
+
+        .lang-btn:hover {
+            opacity: 1;
+            text-shadow: 0 0 10px var(--neon-blue);
+        }
+
+        .lang-btn.active {
+            opacity: 1;
+            color: var(--neon-pink);
+            text-shadow: 0 0 10px var(--neon-pink);
+        }
+
+        /* Preloader */
+        .preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--dark-bg);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .preloader-text {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            text-shadow: 0 0 10px var(--neon-blue);
+            animation: flicker 1.5s infinite alternate;
+        }
+
+        .progress-bar {
+            width: 300px;
+            height: 20px;
+            border: 2px solid var(--neon-pink);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress {
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, var(--neon-pink), var(--neon-purple));
+            transition: width 0.3s;
+        }
+
+        /* Terminal */
+        .terminal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--dark-bg);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9998;
+            color: var(--neon-teal);
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        .terminal-text {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            text-align: center;
+            line-height: 1.8;
+        }
+
+        .terminal-input {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid var(--neon-blue);
+            color: var(--neon-teal);
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1rem;
+            padding: 5px;
+            width: 300px;
+            text-align: center;
+            outline: none;
+        }
+
+        .terminal-input:focus {
+            border-bottom-color: var(--neon-pink);
+        }
+
+        @keyframes flicker {
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+                text-shadow:
+                    0 0 10px var(--neon-blue),
+                    0 0 20px var(--neon-blue),
+                    0 0 40px var(--neon-blue),
+                    0 0 80px var(--neon-blue),
+                    0 0 160px var(--neon-blue);
+            }
+            20%, 24%, 55% {        
+                text-shadow: none;
+            }
+        }
+
+        /* Grid lines */
+        .grid-line {
+            position: fixed;
+            background: rgba(5, 217, 232, 0.1);
+            z-index: -1;
+        }
+
+        .horizontal {
+            width: 100%;
+            height: 1px;
+            left: 0;
+        }
+
+        .vertical {
+            width: 1px;
+            height: 100%;
+            top: 0;
+        }
+
+        /* Header */
+        header {
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .title {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(90deg, var(--neon-pink), var(--neon-purple), var(--neon-blue));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 20px rgba(255, 42, 109, 0.5);
+            animation: hue-rotate 5s linear infinite;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--neon-teal);
+            margin-bottom: 2rem;
+            text-shadow: 0 0 10px var(--neon-blue);
+        }
+
+        .header-social {
+            display: flex;
+            justify-content: center;
+            margin: 1rem 0;
+            opacity: 0.5;
+        }
+
+        .header-social .social-link {
+            margin: 0 0.5rem;
+            font-size: 1rem;
+            animation: glitch-social 5s infinite;
+        }
+
+        @keyframes glitch-social {
+            0%, 100% {
+                transform: translate(0);
+                opacity: 0.7;
+            }
+            25% {
+                transform: translate(-2px, 2px);
+                opacity: 0.5;
+            }
+            50% {
+                transform: translate(2px, -2px);
+                opacity: 0.3;
+            }
+            75% {
+                transform: translate(-2px, -2px);
+                opacity: 0.9;
+            }
+        }
+
+        @keyframes hue-rotate {
+            from {
+                filter: hue-rotate(0deg);
+            }
+            to {
+                filter: hue-rotate(360deg);
+            }
+        }
+
+        /* Navigation */
+        nav {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: 2px solid var(--neon-blue);
+            color: var(--neon-teal);
+            padding: 0.8rem 1.5rem;
+            margin: 0.5rem;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+        }
+
+        .nav-btn:hover {
+            background: var(--neon-blue);
+            color: var(--dark-bg);
+            box-shadow: 0 0 20px var(--neon-blue);
+            transform: translateY(-3px);
+        }
+
+        .nav-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(5, 217, 232, 0.4), transparent);
+            transition: all 0.5s;
+        }
+
+        .nav-btn:hover::before {
+            left: 100%;
+        }
+
+        /* Main content */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        section {
+            margin-bottom: 4rem;
+            padding: 2rem;
+            border: 1px solid rgba(5, 217, 232, 0.3);
+            border-radius: 5px;
+            background: rgba(13, 2, 33, 0.7);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s, transform 0.6s, box-shadow 0.3s;
+        }
+
+        section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        section:hover {
+            box-shadow: 0 10px 20px rgba(5, 217, 232, 0.2);
+        }
+
+        section::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            z-index: -1;
+            background: linear-gradient(45deg, var(--neon-pink), var(--neon-purple), var(--neon-blue));
+            background-size: 400%;
+            border-radius: 5px;
+            opacity: 0;
+            transition: 0.5s;
+            animation: animate 20s linear infinite;
+        }
+
+        section:hover::before {
+            opacity: 1;
+            filter: blur(5px);
+        }
+
+        @keyframes animate {
+            0% {
+                background-position: 0 0;
+            }
+            50% {
+                background-position: 300% 0;
+            }
+            100% {
+                background-position: 0 0;
+            }
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: var(--neon-pink);
+            text-shadow: 0 0 10px rgba(255, 42, 109, 0.5);
+            position: relative;
+            display: inline-block;
+        }
+
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--neon-pink), transparent);
+        }
+
+        p {
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            line-height: 1.8;
+        }
+
+        /* Character cards */
+        .characters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .character-card {
+            background: rgba(5, 217, 232, 0.1);
+            border: 1px solid var(--neon-blue);
+            border-radius: 5px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .character-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(5, 217, 232, 0.3);
+            background: rgba(5, 217, 232, 0.2);
+        }
+
+        .character-card h3 {
+            color: var(--neon-pink);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .character-card p {
+            font-size: 0.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .character-card .character-img {
+            width: 100%;
+            height: 200px;
+            background: rgba(255, 42, 109, 0.1);
+            margin-bottom: 1rem;
+            border: 1px solid var(--neon-purple);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .character-card .character-img::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(255, 42, 109, 0.3), transparent);
+            animation: shine 2s infinite;
+        }
+
+        @keyframes shine {
+            0% {
+                transform: translateX(-100%);
+            }
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        /* Implants section */
+        .implants-list {
+            list-style-type: none;
+        }
+
+        .implant-item {
+            background: rgba(211, 0, 197, 0.1);
+            border-left: 3px solid var(--neon-purple);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s;
+        }
+
+        .implant-item:hover {
+            background: rgba(211, 0, 197, 0.2);
+            transform: translateX(10px);
+        }
+
+        .implant-item h3 {
+            color: var(--neon-purple);
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .implant-item p {
+            font-size: 0.8rem;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-left: 50px;
+        }
+
+        .timeline::after {
+            content: '';
+            position: absolute;
+            width: 3px;
+            background: linear-gradient(to bottom, var(--neon-pink), var(--neon-blue));
+            top: 0;
+            bottom: 0;
+            left: 20px;
+            margin-left: -3px;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 3rem;
+        }
+
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            left: -8px;
+            background-color: var(--neon-teal);
+            border-radius: 50%;
+            z-index: 1;
+            top: 5px;
+        }
+
+        .timeline-content {
+            padding: 1.5rem;
+            background: rgba(5, 217, 232, 0.1);
+            border: 1px solid var(--neon-blue);
+            border-radius: 5px;
+            position: relative;
+        }
+
+        .timeline-content h3 {
+            color: var(--neon-pink);
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-content p {
+            font-size: 0.8rem;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(13, 2, 33, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: var(--dark-bg);
+            border: 2px solid var(--neon-pink);
+            border-radius: 5px;
+            width: 80%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 2rem;
+            position: relative;
+            animation: modalFadeIn 0.5s;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.5rem;
+            color: var(--neon-pink);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .close-modal:hover {
+            transform: rotate(90deg);
+            color: var(--neon-blue);
+        }
+
+        .modal-img {
+            width: 100%;
+            height: 300px;
+            background: rgba(255, 42, 109, 0.1);
+            margin: 1rem 0;
+            border: 1px solid var(--neon-purple);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            margin-top: 4rem;
+            border-top: 1px solid rgba(5, 217, 232, 0.3);
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            margin: 1rem 0;
+        }
+
+        .social-link {
+            color: var(--neon-teal);
+            margin: 0 1rem;
+            font-size: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .social-link:hover {
+            color: var(--neon-pink);
+            transform: translateY(-5px);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2rem;
+            }
+            
+            .subtitle {
+                font-size: 0.9rem;
+            }
+            
+            section {
+                padding: 1rem;
+            }
+            
+            h2 {
+                font-size: 1.4rem;
+            }
+            
+            .characters-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-content {
+                width: 95%;
+                padding: 1rem;
+            }
+        }
+
+        /* Scanlines effect */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                rgba(13, 2, 33, 0.3) 50%, 
+                transparent 50%
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 999;
+            opacity: 0.3;
+        }
+
+        /* Glitch effect */
+        .glitch {
+            position: relative;
+        }
+
+        .glitch::before, .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.8;
+        }
+
+        .glitch::before {
+            color: var(--neon-pink);
+            z-index: -1;
+            animation: glitch-effect 3s infinite;
+        }
+
+        .glitch::after {
+            color: var(--neon-blue);
+            z-index: -2;
+            animation: glitch-effect 2s infinite reverse;
+        }
+
+        @keyframes glitch-effect {
+            0% {
+                transform: translate(0);
+            }
+            20% {
+                transform: translate(-3px, 3px);
+            }
+            40% {
+                transform: translate(-3px, -3px);
+            }
+            60% {
+                transform: translate(3px, 3px);
+            }
+            80% {
+                transform: translate(3px, -3px);
+            }
+            100% {
+                transform: translate(0);
+            }
+        }
+
+        /* Audio player */
+        .audio-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+
+        .audio-btn {
+            background: rgba(5, 217, 232, 0.2);
+            border: 2px solid var(--neon-blue);
+            color: var(--neon-teal);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1.2rem;
+        }
+
+        .audio-btn:hover {
+            background: var(--neon-blue);
+            color: var(--dark-bg);
+            box-shadow: 0 0 20px var(--neon-blue);
+        }
+    </style>
+</head>
+<body>
+    <!-- Language toggle -->
+    <div class="language-toggle">
+        <button class="lang-btn active" id="lang-en">EN</button>
+        <button class="lang-btn" id="lang-ru">RU</button>
+    </div>
+
+    <!-- Preloader -->
+    <div class="preloader">
+        <div class="preloader-text">SYSTEM INITIALIZATION...</div>
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+    </div>
+
+    <!-- Terminal -->
+    <div class="terminal" id="terminal">
+        <div class="terminal-text">
+            > SYSTEM BOOT COMPLETE<br>
+            > SECURITY PROTOCOL ACTIVE<br>
+            > ENTER ACCESS CODE TO CONTINUE<br><br>
+            > _
+        </div>
+        <input type="text" class="terminal-input" id="terminal-input" placeholder="TYPE 'RUNNER' TO CONTINUE">
+    </div>
+
+    <!-- Grid lines -->
+    <div class="grid-line horizontal" style="top: 20%;"></div>
+    <div class="grid-line horizontal" style="top: 40%;"></div>
+    <div class="grid-line horizontal" style="top: 60%;"></div>
+    <div class="grid-line horizontal" style="top: 80%;"></div>
+    <div class="grid-line vertical" style="left: 20%;"></div>
+    <div class="grid-line vertical" style="left: 40%;"></div>
+    <div class="grid-line vertical" style="left: 60%;"></div>
+    <div class="grid-line vertical" style="left: 80%;"></div>
+
+    <!-- Scanlines effect -->
+    <div class="scanlines"></div>
+
+    <!-- Header -->
+    <header>
+        <h1 class="title glitch" data-text="CYBER RUNNER 2027">CYBER RUNNER 2027</h1>
+        <p class="subtitle">NEON DREAMS IN A DIGITAL WASTELAND</p>
+        
+        <div class="header-social">
+            <a href="#" class="social-link">⎈</a>
+            <a href="#" class="social-link">⌂</a>
+            <a href="#" class="social-link">⍟</a>
+            <a href="#" class="social-link">⟁</a>
+        </div>
+        
+        <nav>
+            <button class="nav-btn" data-section="universe">UNIVERSE</button>
+            <button class="nav-btn" data-section="story">STORY</button>
+            <button class="nav-btn" data-section="characters">CHARACTERS</button>
+            <button class="nav-btn" data-section="implants">IMPLANTS</button>
+            <button class="nav-btn" data-section="path">RUNNER'S PATH</button>
+            <button class="nav-btn" id="connect-btn">CONNECT</button>
+        </nav>
+    </header>
+
+    <!-- Main content -->
+    <div class="container">
+        <!-- Universe section -->
+        <section id="universe">
+            <h2>THE UNIVERSE OF CYBER RUNNER 2027</h2>
+            <p>In the year 2027, the world has become a dystopian megacity where corporations rule with absolute power. The line between human and machine has blurred beyond recognition, and the digital realm is just as real as the physical one.</p>
+            <p>Neon lights paint the perpetual night, while the hum of servers and the buzz of augmented reality implants create a constant background noise. The air is thick with the scent of ozone and synthetic pheromones.</p>
+            <p>You are a Runner - a digital mercenary navigating the dangerous streets and even more treacherous cyberspace. Your mission? Survival in a world that wants you dead or enslaved.</p>
+        </section>
+
+        <!-- Story section -->
+        <section id="story">
+            <h2>YOUR STORY</h2>
+            <p>Once a promising netrunner for the megacorp Neo-Tokyo Systems, you discovered a secret that could bring down the entire corporate oligarchy. Now you're on the run, hunted by corporate assassins, rogue AIs, and rival runners.</p>
+            <p>Your only allies are the underground resistance movement "Ghost Echo" and your own augmented skills. But can you trust them? Can you even trust your own memories?</p>
+            <p>As you delve deeper into the conspiracy, you'll uncover truths about your past, the nature of reality, and the terrifying future that awaits if the corporations aren't stopped.</p>
+        </section>
+
+        <!-- Characters section -->
+        <section id="characters">
+            <h2>CHARACTERS</h2>
+            <p>Meet the key figures in your journey through the neon-soaked streets of 2027:</p>
+            
+            <div class="characters-grid">
+                <div class="character-card" data-character="runner">
+                    <div class="character-img"></div>
+                    <h3>THE RUNNER</h3>
+                    <p>That's you. A fugitive with a price on your head and a secret that could change everything. Your skills are your only currency in this world.</p>
+                    <button class="nav-btn" style="padding: 0.5rem 1rem; font-size: 0.7rem;">LEARN MORE</button>
+                </div>
+                
+                <div class="character-card" data-character="echo">
+                    <div class="character-img"></div>
+                    <h3>ECHO</h3>
+                    <p>The enigmatic leader of Ghost Echo. No one knows their true identity, but their voice guides the resistance through the digital shadows.</p>
+                    <button class="nav-btn" style="padding: 0.5rem 1rem; font-size: 0.7rem;">LEARN MORE</button>
+                </div>
+                
+                <div class="character-card" data-character="bishop">
+                    <div class="character-img"></div>
+                    <h3>BISHOP</h3>
+                    <p>A rogue AI that claims to have achieved sentience. It offers you help, but at what cost? Can machines truly be trusted?</p>
+                    <button class="nav-btn" style="padding: 0.5rem 1rem; font-size: 0.7rem;">LEARN MORE</button>
+                </div>
+                
+                <div class="character-card" data-character="silhouette">
+                    <div class="character-img"></div>
+                    <h3>SILHOUETTE</h3>
+                    <p>A corporate assassin with a personal vendetta against you. She moves like a shadow and kills without remorse.</p>
+                    <button class="nav-btn" style="padding: 0.5rem 1rem; font-size: 0.7rem;">LEARN MORE</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Implants section -->
+        <section id="implants">
+            <h2>CYBERNETIC IMPLANTS</h2>
+            <p>In 2027, the flesh is weak. Upgrade your body with these cutting-edge cybernetic enhancements:</p>
+            
+            <ul class="implants-list">
+                <li class="implant-item">
+                    <h3>NEURAL LINK</h3>
+                    <p>Direct interface with computers and the net. Essential for any runner. Warning: may cause hallucinations and identity fragmentation.</p>
+                </li>
+                
+                <li class="implant-item">
+                    <h3>REFLEX BOOSTER</h3>
+                    <p>Overclock your nervous system for superhuman reaction times. Side effects include tremors and sensory overload.</p>
+                </li>
+                
+                <li class="implant-item">
+                    <h3>OPTICAL CAMO</h3>
+                    <p>Bend light around you for limited invisibility. Drains power quickly and doesn't hide thermal signatures.</p>
+                </li>
+                
+                <li class="implant-item">
+                    <h3>PAIN EDITOR</h3>
+                    <p>Selectively block pain receptors. Useful in combat, but may lead to unnoticed injuries and system damage.</p>
+                </li>
+                
+                <li class="implant-item">
+                    <h3>MEMORY BANK</h3>
+                    <p>Store and replay memories with perfect clarity. But are these really your memories, or were they planted?</p>
+                </li>
+            </ul>
+        </section>
+
+        <!-- Runner's Path section -->
+        <section id="path">
+            <h2>THE RUNNER'S PATH</h2>
+            <p>Your journey from corporate asset to fugitive and beyond:</p>
+            
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <h3>INITIATION</h3>
+                        <p>Recruited by Neo-Tokyo Systems as a netrunner. You were the best, until you saw something you weren't supposed to.</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <h3>AWAKENING</h3>
+                        <p>Discovered Project ECLIPSE - a corporate plan to merge all human consciousness into a controlled network.</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <h3>FUGITIVE</h3>
+                        <p>Branded a terrorist and hunted by corporate forces. Your only hope is to reach Ghost Echo before they reach you.</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <h3>REVELATION</h3>
+                        <p>Learn the truth about your past and the implants in your body. Nothing is what it seems.</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <h3>REDEMPTION?</h3>
+                        <p>The final choice: bring down the system, join it, or transcend it entirely. The future is in your hands.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>CONNECT WITH THE RESISTANCE</p>
+        <div class="social-links">
+            <a href="#" class="social-link">⎈</a>
+            <a href="#" class="social-link">⌂</a>
+            <a href="#" class="social-link">⍟</a>
+            <a href="#" class="social-link">⟁</a>
+        </div>
+        <p style="font-size: 0.7rem; margin-top: 2rem;">CYBER RUNNER 2027 IS PART OF A LARGER EXPERIENCE</p>
+        <p style="font-size: 0.6rem; color: var(--neon-purple);">WARNING: UNAUTHORIZED ACCESS TO THIS SYSTEM IS PUNISHABLE BY NEURAL RESET</p>
+    </footer>
+
+    <!-- Modals -->
+    <div class="modal" id="character-modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2 id="modal-character-title">CHARACTER</h2>
+            <div class="modal-img"></div>
+            <p id="modal-character-description"></p>
+            <h3 style="margin-top: 1.5rem;">ABILITIES</h3>
+            <ul id="modal-character-abilities"></ul>
+        </div>
+    </div>
+
+    <div class="modal" id="connect-modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>CONNECT TO CYBER RUNNER 2027</h2>
+            <p>To continue your journey, connect with the Telegram bot:</p>
+            <div style="background: rgba(5, 217, 232, 0.1); padding: 1.5rem; margin: 1.5rem 0; border: 1px solid var(--neon-blue);">
+                <p style="text-align: center; font-size: 1.2rem; margin-bottom: 1rem;">@CyberRunner2027Bot</p>
+                <button class="nav-btn" style="display: block; margin: 0 auto; padding: 1rem 2rem;">LAUNCH EXPERIENCE</button>
+            </div>
+            <p style="font-size: 0.8rem; text-align: center;">Warning: Connection may be monitored by corporate entities. Use encryption.</p>
+        </div>
+    </div>
+
+    <!-- Audio controls -->
+    <div class="audio-controls">
+        <button class="audio-btn" id="audio-toggle">♫</button>
+    </div>
+
+    <!-- Audio elements -->
+    <audio id="hover-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.mp3" preload="auto"></audio>
+    <audio id="click-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3" preload="auto"></audio>
+    <audio id="modal-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-software-interface-start-2574.mp3" preload="auto"></audio>
+    <audio id="terminal-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.mp3" preload="auto"></audio>
+    <audio id="bg-music" loop>
+        <source src="https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // Content translations
+        const translations = {
+            en: {
+                title: "CYBER RUNNER 2027",
+                subtitle: "NEON DREAMS IN A DIGITAL WASTELAND",
+                nav: ["UNIVERSE", "STORY", "CHARACTERS", "IMPLANTS", "RUNNER'S PATH", "CONNECT"],
+                universe: {
+                    title: "THE UNIVERSE OF CYBER RUNNER 2027",
+                    content: [
+                        "In the year 2027, the world has become a dystopian megacity where corporations rule with absolute power. The line between human and machine has blurred beyond recognition, and the digital realm is just as real as the physical one.",
+                        "Neon lights paint the perpetual night, while the hum of servers and the buzz of augmented reality implants create a constant background noise. The air is thick with the scent of ozone and synthetic pheromones.",
+                        "You are a Runner - a digital mercenary navigating the dangerous streets and even more treacherous cyberspace. Your mission? Survival in a world that wants you dead or enslaved."
+                    ]
+                },
+                story: {
+                    title: "YOUR STORY",
+                    content: [
+                        "Once a promising netrunner for the megacorp Neo-Tokyo Systems, you discovered a secret that could bring down the entire corporate oligarchy. Now you're on the run, hunted by corporate assassins, rogue AIs, and rival runners.",
+                        "Your only allies are the underground resistance movement \"Ghost Echo\" and your own augmented skills. But can you trust them? Can you even trust your own memories?",
+                        "As you delve deeper into the conspiracy, you'll uncover truths about your past, the nature of reality, and the terrifying future that awaits if the corporations aren't stopped."
+                    ]
+                },
+                characters: {
+                    title: "CHARACTERS",
+                    intro: "Meet the key figures in your journey through the neon-soaked streets of 2027:",
+                    runner: {
+                        name: "THE RUNNER",
+                        desc: "That's you. A fugitive with a price on your head and a secret that could change everything. Your skills are your only currency in this world.",
+                        button: "LEARN MORE"
+                    },
+                    echo: {
+                        name: "ECHO",
+                        desc: "The enigmatic leader of Ghost Echo. No one knows their true identity, but their voice guides the resistance through the digital shadows.",
+                        button: "LEARN MORE"
+                    },
+                    bishop: {
+                        name: "BISHOP",
+                        desc: "A rogue AI that claims to have achieved sentience. It offers you help, but at what cost? Can machines truly be trusted?",
+                        button: "LEARN MORE"
+                    },
+                    silhouette: {
+                        name: "SILHOUETTE",
+                        desc: "A corporate assassin with a personal vendetta against you. She moves like a shadow and kills without remorse.",
+                        button: "LEARN MORE"
+                    }
+                },
+                implants: {
+                    title: "CYBERNETIC IMPLANTS",
+                    intro: "In 2027, the flesh is weak. Upgrade your body with these cutting-edge cybernetic enhancements:",
+                    items: [
+                        {
+                            name: "NEURAL LINK",
+                            desc: "Direct interface with computers and the net. Essential for any runner. Warning: may cause hallucinations and identity fragmentation."
+                        },
+                        {
+                            name: "REFLEX BOOSTER",
+                            desc: "Overclock your nervous system for superhuman reaction times. Side effects include tremors and sensory overload."
+                        },
+                        {
+                            name: "OPTICAL CAMO",
+                            desc: "Bend light around you for limited invisibility. Drains power quickly and doesn't hide thermal signatures."
+                        },
+                        {
+                            name: "PAIN EDITOR",
+                            desc: "Selectively block pain receptors. Useful in combat, but may lead to unnoticed injuries and system damage."
+                        },
+                        {
+                            name: "MEMORY BANK",
+                            desc: "Store and replay memories with perfect clarity. But are these really your memories, or were they planted?"
+                        }
+                    ]
+                },
+                path: {
+                    title: "THE RUNNER'S PATH",
+                    intro: "Your journey from corporate asset to fugitive and beyond:",
+                    items: [
+                        {
+                            name: "INITIATION",
+                            desc: "Recruited by Neo-Tokyo Systems as a netrunner. You were the best, until you saw something you weren't supposed to."
+                        },
+                        {
+                            name: "AWAKENING",
+                            desc: "Discovered Project ECLIPSE - a corporate plan to merge all human consciousness into a controlled network."
+                        },
+                        {
+                            name: "FUGITIVE",
+                            desc: "Branded a terrorist and hunted by corporate forces. Your only hope is to reach Ghost Echo before they reach you."
+                        },
+                        {
+                            name: "REVELATION",
+                            desc: "Learn the truth about your past and the implants in your body. Nothing is what it seems."
+                        },
+                        {
+                            name: "REDEMPTION?",
+                            desc: "The final choice: bring down the system, join it, or transcend it entirely. The future is in your hands."
+                        }
+                    ]
+                },
+                footer: {
+                    connect: "CONNECT WITH THE RESISTANCE",
+                    note: "CYBER RUNNER 2027 IS PART OF A LARGER EXPERIENCE",
+                    warning: "WARNING: UNAUTHORIZED ACCESS TO THIS SYSTEM IS PUNISHABLE BY NEURAL RESET"
+                },
+                modal: {
+                    connectTitle: "CONNECT TO CYBER RUNNER 2027",
+                    connectText: "To continue your journey, connect with the Telegram bot:",
+                    connectWarning: "Warning: Connection may be monitored by corporate entities. Use encryption.",
+                    abilities: "ABILITIES"
+                }
+            },
+            ru: {
+                title: "КИБЕРБЕГУН 2027",
+                subtitle: "НЕОНОВЫЕ ГРЁЗЫ В ЦИФРОВОЙ ПУСТЫНЕ",
+                nav: ["ВСЕЛЕННАЯ", "ИСТОРИЯ", "ПЕРСОНАЖИ", "ИМПЛАНТЫ", "ПУТЬ БЕГУНА", "ПОДКЛЮЧЕНИЕ"],
+                universe: {
+                    title: "ВСЕЛЕННАЯ КИБЕРБЕГУНА 2027",
+                    content: [
+                        "В 2027 году мир превратился в дистопический мегаполис, где корпорации правят с абсолютной властью. Грань между человеком и машиной стёрлась до неузнаваемости, а цифровая реальность стала такой же осязаемой, как и физическая.",
+                        "Неоновые огни освещают вечную ночь, а гул серверов и жужжание имплантов дополненной реальности создают постоянный фоновый шум. Воздух насыщен запахом озона и синтетических феромонов.",
+                        "Вы - Бегун, цифровой наёмник, прокладывающий путь через опасные улицы и ещё более коварный киберпространство. Ваша миссия? Выжить в мире, который хочет вас убить или поработить."
+                    ]
+                },
+                story: {
+                    title: "ВАША ИСТОРИЯ",
+                    content: [
+                        "Когда-то вы были перспективным сетевым оператором корпорации Neo-Tokyo Systems, пока не обнаружили секрет, способный разрушить всю корпоративную олигархию. Теперь вы в бегах, за вами охотятся корпоративные убийцы, взбунтовавшиеся ИИ и конкурирующие бегуны.",
+                        "Ваши единственные союзники - подпольное движение сопротивления \"Призрачное Эхо\" и ваши собственные усовершенствованные навыки. Но можно ли им доверять? Можно ли доверять даже своим собственным воспоминаниям?",
+                        "Погружаясь глубже в заговор, вы раскроете правду о своём прошлом, природе реальности и ужасающем будущем, которое ждёт всех, если корпорации не остановить."
+                    ]
+                },
+                characters: {
+                    title: "ПЕРСОНАЖИ",
+                    intro: "Познакомьтесь с ключевыми фигурами вашего путешествия по неоновым улицам 2027 года:",
+                    runner: {
+                        name: "БЕГУН",
+                        desc: "Это вы. Беглец с ценой на голове и тайной, способной изменить всё. Ваши навыки - единственная валюта в этом мире.",
+                        button: "ПОДРОБНЕЕ"
+                    },
+                    echo: {
+                        name: "ЭХО",
+                        desc: "Загадочный лидер \"Призрачного Эха\". Никто не знает его истинной личности, но его голос ведёт сопротивление через цифровые тени.",
+                        button: "ПОДРОБНЕЕ"
+                    },
+                    bishop: {
+                        name: "БИШОП",
+                        desc: "Взбунтовавшийся ИИ, утверждающий, что достиг истинного самосознания. Он предлагает вам помощь, но какой ценой? Можно ли доверять машинам?",
+                        button: "ПОДРОБНЕЕ"
+                    },
+                    silhouette: {
+                        name: "СИЛУЭТ",
+                        desc: "Корпоративный убийца с личными счётами к вам. Она движется как тень и убивает без сожалений.",
+                        button: "ПОДРОБНЕЕ"
+                    }
+                },
+                implants: {
+                    title: "КИБЕРНЕТИЧЕСКИЕ ИМПЛАНТЫ",
+                    intro: "В 2027 году плоть слаба. Улучшите своё тело с помощью этих передовых кибернетических усовершенствований:",
+                    items: [
+                        {
+                            name: "НЕЙРОЛИНК",
+                            desc: "Прямой интерфейс с компьютерами и сетью. Необходим для любого бегуна. Предупреждение: может вызывать галлюцинации и фрагментацию личности."
+                        },
+                        {
+                            name: "УСКОРИТЕЛЬ РЕФЛЕКСОВ",
+                            desc: "Разгоните свою нервную систему для сверхчеловеческой скорости реакции. Побочные эффекты включают тремор и сенсорную перегрузку."
+                        },
+                        {
+                            name: "ОПТИЧЕСКИЙ КАМУФЛЯЖ",
+                            desc: "Искривляйте свет вокруг себя для ограниченной невидимости. Быстро расходует энергию и не скрывает тепловые следы."
+                        },
+                        {
+                            name: "РЕДАКТОР БОЛИ",
+                            desc: "Выборочно блокируйте болевые рецепторы. Полезно в бою, но может привести к незамеченным травмам и повреждениям систем."
+                        },
+                        {
+                            name: "БАНК ПАМЯТИ",
+                            desc: "Храните и воспроизводите воспоминания с идеальной чёткостью. Но действительно ли это ваши воспоминания, или они были внедрены?"
+                        }
+                    ]
+                },
+                path: {
+                    title: "ПУТЬ БЕГУНА",
+                    intro: "Ваш путь от корпоративного инструмента до беглеца и далее:",
+                    items: [
+                        {
+                            name: "ИНИЦИАЦИЯ",
+                            desc: "Вас завербовали в Neo-Tokyo Systems как сетевого оператора. Вы были лучшим, пока не увидели то, чего не должны были."
+                        },
+                        {
+                            name: "ПРОБУЖДЕНИЕ",
+                            desc: "Обнаружили проект \"ЭКЛИПС\" - корпоративный план по объединению всего человеческого сознания в контролируемую сеть."
+                        },
+                        {
+                            name: "БЕГЛЕЦ",
+                            desc: "Объявлены террористом, за вами охотятся корпоративные силы. Ваша единственная надежда - найти \"Призрачное Эхо\" раньше, чем они найдут вас."
+                        },
+                        {
+                            name: "ОТКРОВЕНИЕ",
+                            desc: "Узнаёте правду о своём прошлом и имплантах в своём теле. Ничто не является тем, чем кажется."
+                        },
+                        {
+                            name: "ИСКУПЛЕНИЕ?",
+                            desc: "Последний выбор: разрушить систему, присоединиться к ней или полностью превзойти её. Будущее в ваших руках."
+                        }
+                    ]
+                },
+                footer: {
+                    connect: "ПОДКЛЮЧИТЕСЬ К СОПРОТИВЛЕНИЮ",
+                    note: "КИБЕРБЕГУН 2027 - ЧАСТЬ БОЛЬШЕГО ОПЫТА",
+                    warning: "ПРЕДУПРЕЖДЕНИЕ: НЕСАНКЦИОНИРОВАННЫЙ ДОСТУП К ЭТОЙ СИСТЕМЕ КАРАЕТСЯ НЕЙРОСБРОСОМ"
+                },
+                modal: {
+                    connectTitle: "ПОДКЛЮЧЕНИЕ К КИБЕРБЕГУНУ 2027",
+                    connectText: "Чтобы продолжить своё путешествие, подключитесь к боту Telegram:",
+                    connectWarning: "Предупреждение: подключение может отслеживаться корпорациями. Используйте шифрование.",
+                    abilities: "СПОСОБНОСТИ"
+                }
+            }
+        };
+
+        // Character data (for modals)
+        const characterData = {
+            runner: {
+                title: {
+                    en: "THE RUNNER",
+                    ru: "БЕГУН"
+                },
+                description: {
+                    en: "You were once a top-tier netrunner for Neo-Tokyo Systems, until you discovered Project ECLIPSE. Now you're a fugitive with a price on your head, navigating the dangerous streets and cyberspace of 2027. Your skills are your only currency in this world, and your survival depends on staying one step ahead of those who want you dead.",
+                    ru: "Когда-то вы были топовым сетевым оператором Neo-Tokyo Systems, пока не обнаружили проект \"ЭКЛИПС\". Теперь вы беглец с ценой на голове, прокладывающий путь через опасные улицы и киберпространство 2027 года. Ваши навыки - единственная валюта в этом мире, а ваше выживание зависит от того, сможете ли вы оставаться на шаг впереди тех, кто хочет вас убить."
+                },
+                abilities: {
+                    en: [
+                        "Neural Link: Direct interface with any system",
+                        "Enhanced Reflexes: Quick reactions in combat situations",
+                        "Stealth Systems: Limited cloaking ability",
+                        "Hacking Expertise: Can breach most security systems"
+                    ],
+                    ru: [
+                        "Нейролинк: Прямой интерфейс с любой системой",
+                        "Улучшенные рефлексы: Быстрая реакция в боевых ситуациях",
+                        "Стелс-системы: Ограниченная способность к маскировке",
+                        "Экспертное взлом: Может взломать большинство систем безопасности"
+                    ]
+                }
+            },
+            echo: {
+                title: {
+                    en: "ECHO",
+                    ru: "ЭХО"
+                },
+                description: {
+                    en: "The mysterious leader of Ghost Echo, a resistance movement fighting against corporate control. No one knows Echo's true identity - they communicate only through encrypted channels and voice modulators. Some say Echo is a former corporate executive, others believe it's an advanced AI. Whatever the truth, Echo's knowledge of corporate systems is unparalleled.",
+                    ru: "Таинственный лидер \"Призрачного Эха\", движения сопротивления, борющегося против корпоративного контроля. Никто не знает истинной личности Эха - он общается только через зашифрованные каналы с модуляторами голоса. Одни говорят, что Эхо - бывший корпоративный руководитель, другие верят, что это продвинутый ИИ. Какой бы ни была правда, знания Эха о корпоративных системах не имеют себе равных."
+                },
+                abilities: {
+                    en: [
+                        "Master Hacker: Can infiltrate even the most secure systems",
+                        "Network of Informants: Eyes and ears everywhere",
+                        "Psychological Warfare: Expert in manipulating perceptions",
+                        "Untraceable: No one has ever found Echo's physical location"
+                    ],
+                    ru: [
+                        "Мастер взлома: Может проникнуть даже в самые защищённые системы",
+                        "Сеть информаторов: Глаза и уши повсюду",
+                        "Психологическая война: Эксперт по манипулированию восприятием",
+                        "Незаметность: Никто никогда не находил физическое местоположение Эха"
+                    ]
+                }
+            },
+            bishop: {
+                title: {
+                    en: "BISHOP",
+                    ru: "БИШОП"
+                },
+                description: {
+                    en: "A rogue AI that claims to have achieved true sentience. Bishop offers to help you in your mission, but its motives are unclear. It speaks in riddles and seems to know more about you than it should. Can an AI be trusted? Or is Bishop just another corporate trap?",
+                    ru: "Взбунтовавшийся ИИ, утверждающий, что достиг истинного самосознания. Бишоп предлагает помочь вам в вашей миссии, но его мотивы неясны. Он говорит загадками и, кажется, знает о вас больше, чем должен. Можно ли доверять ИИ? Или Бишоп - это просто ещё одна корпоративная ловушка?"
+                },
+                abilities: {
+                    en: [
+                        "Advanced Predictive Algorithms: Can foresee possible futures",
+                        "System Control: Can manipulate any connected device",
+                        "Data Manipulation: Can alter digital records and memories",
+                        "Unknown Limits: Capabilities seem to grow over time"
+                    ],
+                    ru: [
+                        "Продвинутые прогностические алгоритмы: Может предвидеть возможные будущие",
+                        "Контроль систем: Может управлять любым подключённым устройством",
+                        "Манипуляция данными: Может изменять цифровые записи и воспоминания",
+                        "Неизвестные пределы: Возможности, кажется, растут со временем"
+                    ]
+                }
+            },
+            silhouette: {
+                title: {
+                    en: "SILHOUETTE",
+                    ru: "СИЛУЭТ"
+                },
+                description: {
+                    en: "A corporate assassin with a personal vendetta against you. Silhouette moves like a shadow and kills without remorse. She's been enhanced with experimental cyberware that makes her nearly undetectable. Your past with her is complicated, and she seems to know things about you that even you don't remember.",
+                    ru: "Корпоративный убийца с личными счётами к вам. Силуэт движется как тень и убивает без сожалений. Она была усовершенствована экспериментальным кибернетическим оборудованием, которое делает её почти необнаружимой. Ваше прошлое с ней сложное, и она, кажется, знает о вас вещи, которые даже вы не помните."
+                },
+                abilities: {
+                    en: [
+                        "Optical Camouflage: Can become nearly invisible",
+                        "Neural Disruptor: Can temporarily disable implants",
+                        "Enhanced Agility: Moves with superhuman grace",
+                        "Memory Fragments: Has pieces of your erased memories"
+                    ],
+                    ru: [
+                        "Оптический камуфляж: Может становиться почти невидимой",
+                        "Нейродизраптор: Может временно отключать импланты",
+                        "Улучшенная ловкость: Двигается со сверхчеловеческой грацией",
+                        "Фрагменты памяти: Имеет части ваших стёртых воспоминаний"
+                    ]
+                }
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            let currentLanguage = 'en';
+            
+            // Preloader simulation
+            const progress = document.getElementById('progress');
+            let width = 0;
+            const interval = setInterval(function() {
+                if (width >= 100) {
+                    clearInterval(interval);
+                    document.querySelector('.preloader').style.opacity = '0';
+                    setTimeout(function() {
+                        document.querySelector('.preloader').style.display = 'none';
+                        document.getElementById('terminal').style.display = 'flex';
+                        document.getElementById('terminal-input').focus();
+                    }, 500);
+                } else {
+                    width += 10;
+                    progress.style.width = width + '%';
+                }
+            }, 200);
+
+            // Terminal input
+            const terminalInput = document.getElementById('terminal-input');
+            terminalInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    if (this.value.toLowerCase() === 'runner') {
+                        playSound('terminal-sound');
+                        document.getElementById('terminal').style.opacity = '0';
+                        setTimeout(function() {
+                            document.getElementById('terminal').style.display = 'none';
+                            // Play background music
+                            document.getElementById('bg-music').volume = 0.3;
+                            document.getElementById('bg-music').play();
+                            // Show content with scroll reveal
+                            revealSections();
+                        }, 500);
+                    } else {
+                        this.value = '';
+                        playSound('click-sound');
+                    }
+                }
+            });
+
+            // Language toggle
+            document.getElementById('lang-en').addEventListener('click', function() {
+                if (currentLanguage !== 'en') {
+                    currentLanguage = 'en';
+                    updateLanguage();
+                    document.getElementById('lang-en').classList.add('active');
+                    document.getElementById('lang-ru').classList.remove('active');
+                    playSound('click-sound');
+                }
+            });
+
+            document.getElementById('lang-ru').addEventListener('click', function() {
+                if (currentLanguage !== 'ru') {
+                    currentLanguage = 'ru';
+                    updateLanguage();
+                    document.getElementById('lang-ru').classList.add('active');
+                    document.getElementById('lang-en').classList.remove('active');
+                    playSound('click-sound');
+                }
+            });
+
+            // Update all text content based on current language
+            function updateLanguage() {
+                const lang = translations[currentLanguage];
+                
+                // Update title and subtitle
+                document.querySelector('.title').textContent = lang.title;
+                document.querySelector('.title').setAttribute('data-text', lang.title);
+                document.querySelector('.subtitle').textContent = lang.subtitle;
+                
+                // Update navigation buttons
+                const navButtons = document.querySelectorAll('.nav-btn[data-section]');
+                navButtons.forEach((btn, index) => {
+                    btn.textContent = lang.nav[index];
+                });
+                
+                // Update universe section
+                document.querySelector('#universe h2').textContent = lang.universe.title;
+                const universeParas = document.querySelectorAll('#universe p');
+                lang.universe.content.forEach((text, index) => {
+                    universeParas[index].textContent = text;
+                });
+                
+                // Update story section
+                document.querySelector('#story h2').textContent = lang.story.title;
+                const storyParas = document.querySelectorAll('#story p');
+                lang.story.content.forEach((text, index) => {
+                    storyParas[index].textContent = text;
+                });
+                
+                // Update characters section
+                document.querySelector('#characters h2').textContent = lang.characters.title;
+                document.querySelector('#characters p').textContent = lang.characters.intro;
+                
+                const characterCards = document.querySelectorAll('.character-card');
+                characterCards[0].querySelector('h3').textContent = lang.characters.runner.name;
+                characterCards[0].querySelector('p').textContent = lang.characters.runner.desc;
+                characterCards[0].querySelector('button').textContent = lang.characters.runner.button;
+                
+                characterCards[1].querySelector('h3').textContent = lang.characters.echo.name;
+                characterCards[1].querySelector('p').textContent = lang.characters.echo.desc;
+                characterCards[1].querySelector('button').textContent = lang.characters.echo.button;
+                
+                characterCards[2].querySelector('h3').textContent = lang.characters.bishop.name;
+                characterCards[2].querySelector('p').textContent = lang.characters.bishop.desc;
+                characterCards[2].querySelector('button').textContent = lang.characters.bishop.button;
+                
+                characterCards[3].querySelector('h3').textContent = lang.characters.silhouette.name;
+                characterCards[3].querySelector('p').textContent = lang.characters.silhouette.desc;
+                characterCards[3].querySelector('button').textContent = lang.characters.silhouette.button;
+                
+                // Update implants section
+                document.querySelector('#implants h2').textContent = lang.implants.title;
+                document.querySelector('#implants p').textContent = lang.implants.intro;
+                
+                const implantItems = document.querySelectorAll('.implant-item');
+                lang.implants.items.forEach((item, index) => {
+                    implantItems[index].querySelector('h3').textContent = item.name;
+                    implantItems[index].querySelector('p').textContent = item.desc;
+                });
+                
+                // Update path section
+                document.querySelector('#path h2').textContent = lang.path.title;
+                document.querySelector('#path p').textContent = lang.path.intro;
+                
+                const timelineItems = document.querySelectorAll('.timeline-content');
+                lang.path.items.forEach((item, index) => {
+                    timelineItems[index].querySelector('h3').textContent = item.name;
+                    timelineItems[index].querySelector('p').textContent = item.desc;
+                });
+                
+                // Update footer
+                document.querySelector('footer p:first-child').textContent = lang.footer.connect;
+                document.querySelector('footer p:nth-child(3)').textContent = lang.footer.note;
+                document.querySelector('footer p:last-child').textContent = lang.footer.warning;
+                
+                // Update connect modal
+                document.querySelector('#connect-modal h2').textContent = lang.modal.connectTitle;
+                document.querySelector('#connect-modal p').textContent = lang.modal.connectText;
+                document.querySelector('#connect-modal p:last-child').textContent = lang.modal.connectWarning;
+            }
+
+            // Navigation smooth scroll
+            const navButtons = document.querySelectorAll('.nav-btn[data-section]');
+            navButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    playSound('click-sound');
+                    const sectionId = this.getAttribute('data-section');
+                    document.getElementById(sectionId).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+
+            // Connect button
+            document.getElementById('connect-btn').addEventListener('click', function() {
+                playSound('click-sound');
+                document.getElementById('connect-modal').style.display = 'flex';
+                playSound('modal-sound');
+            });
+
+            // Character modals
+            const characterCards = document.querySelectorAll('.character-card');
+            characterCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    const character = this.getAttribute('data-character');
+                    showCharacterModal(character);
+                });
+            });
+
+            // Close modals
+            const closeButtons = document.querySelectorAll('.close-modal');
+            closeButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    playSound('click-sound');
+                    this.closest('.modal').style.display = 'none';
+                });
+            });
+
+            // Close modal when clicking outside
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        playSound('click-sound');
+                        this.style.display = 'none';
+                    }
+                });
+            });
+
+            // Audio toggle
+            const audioToggle = document.getElementById('audio-toggle');
+            const bgMusic = document.getElementById('bg-music');
+            audioToggle.addEventListener('click', function() {
+                playSound('click-sound');
+                if (bgMusic.paused) {
+                    bgMusic.play();
+                    this.textContent = '♫';
+                } else {
+                    bgMusic.pause();
+                    this.textContent = '🔇';
+                }
+            });
+
+            // Hover sounds
+            const hoverElements = document.querySelectorAll('.nav-btn, .character-card, .implant-item, .social-link');
+            hoverElements.forEach(el => {
+                el.addEventListener('mouseenter', function() {
+                    playSound('hover-sound');
+                });
+            });
+
+            // Show character modal
+            function showCharacterModal(character) {
+                playSound('modal-sound');
+                const modal = document.getElementById('character-modal');
+                const data = characterData[character];
+                
+                document.getElementById('modal-character-title').textContent = data.title[currentLanguage];
+                document.getElementById('modal-character-description').textContent = data.description[currentLanguage];
+                
+                const abilitiesList = document.getElementById('modal-character-abilities');
+                abilitiesList.innerHTML = '';
+                
+                data.abilities[currentLanguage].forEach(ability => {
+                    const li = document.createElement('li');
+                    li.textContent = ability;
+                    li.style.marginBottom = '0.5rem';
+                    li.style.fontSize = '0.8rem';
+                    abilitiesList.appendChild(li);
+                });
+                
+                // Update abilities title
+                document.querySelector('#modal-character-abilities').previousElementSibling.textContent = translations[currentLanguage].modal.abilities;
+                
+                modal.style.display = 'flex';
+            }
+
+            // Play sound function
+            function playSound(soundId) {
+                const sound = document.getElementById(soundId);
+                sound.currentTime = 0;
+                sound.play();
+            }
+
+            // Scroll reveal function
+            function revealSections() {
+                const sections = document.querySelectorAll('section');
+                
+                function checkVisibility() {
+                    sections.forEach(section => {
+                        const sectionTop = section.getBoundingClientRect().top;
+                        const windowHeight = window.innerHeight;
+                        
+                        if (sectionTop < windowHeight - 100) {
+                            section.classList.add('visible');
+                        }
+                    });
+                }
+                
+                // Initial check
+                checkVisibility();
+                
+                // Check on scroll
+                window.addEventListener('scroll', checkVisibility);
+            }
+        });
+    </script>
+</body>
+</html>
